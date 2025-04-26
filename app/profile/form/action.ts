@@ -1,4 +1,4 @@
-'use server'
+"use server"
 import { Input } from "@/components/ProfileForm"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
