@@ -1,0 +1,9 @@
+services:
+  database:
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: admin1234
+      POSTGRES_DB: job-portal
+    ports:
+      - 15432:5432

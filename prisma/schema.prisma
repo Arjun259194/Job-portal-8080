@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  JOB_SEEKER
+  EMPLOYEER
+}
+
+enum JobType {
+  OFFICE
+  REMOTE
+  HYBRID
+}
+
+enum ApplicationState {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  Authenticator Authenticator[]
+
+  role          UserRole       @default(JOB_SEEKER)
+  notifications Notification[]
+  jobs          Job[]
+  applications  Application[]
+  Comments      Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Profile   Profile?
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  location String? // "City, Country"
+  summary  String? // About me
+  website  String?
+  skills   String[] // Simple string list; no need for separate Skill table unless filtering
+
+  experiences Experience[]
+  educations  Education[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id        String  @id @default(uuid())
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+
+  role    String // "Software Engineer"
+  company String // "Google"
+  current Boolean @default(false)
+  years   Int
+
+  createdAt DateTime @default(now())
+}
+
+model Education {
+  id        String  @id @default(uuid())
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
+
+  institution String // "MIT"
+  degree      String? // "B.Sc", optional
+  field       String? // "Computer Science"
+
+  createdAt DateTime @default(now())
+}
+
+model Job {
+  id            String        @id @default(cuid())
+  title         String
+  description   String
+  employerId    String?
+  location      String
+  salaryRangeId String        @unique
+  closingDate   DateTime
+  active        Boolean
+  tags          String[]
+  type          JobType       @default(OFFICE)
+  Employer      User?         @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  salaryRange   SalaryRange   @relation(fields: [salaryRangeId], references: [id])
+  Applications  Application[]
+  Comments      Comment[]
+}
+
+model Notification {
+  id        String  @id @default(cuid())
+  User      User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  title     String
+  content   String
+  link      String?
+  recevided Boolean
+}
+
+model SalaryRange {
+  id  String @id @default(cuid())
+  max Int
+  min Int
+  Job Job?
+}
+
+model Application {
+  id     String           @id @default(cuid())
+  state  ApplicationState @default(PENDING)
+  Job    Job?             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId  String?
+  User   User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+}
+
+model Comment {
+  id       String  @id @default(cuid())
+  content  String
+  writer   User    @relation(fields: [writerId], references: [id], onDelete: Cascade)
+  writerId String
+  Job      Job?    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId    String?
+}
