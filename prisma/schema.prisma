@@ -46,11 +46,15 @@ model User {
   notifications Notification[]
   jobs          Job[]
   applications  Application[]
-  Comments      Comment[]
+  Comments      JobComment[]
+
+  Profile     Profile?
+  liked       Post[]        @relation("likes")
+  PostComment PostComment[]
+  Post        Post[]        @relation("creater")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Profile   Profile?
 }
 
 model Account {
@@ -164,7 +168,31 @@ model Job {
   Employer      User?         @relation(fields: [employerId], references: [id], onDelete: Cascade)
   salaryRange   SalaryRange   @relation(fields: [salaryRangeId], references: [id])
   Applications  Application[]
-  Comments      Comment[]
+  Comments      JobComment[]
+}
+
+model Post {
+  id      String @id @default(cuid())
+  title   String
+  content String
+
+  creater   User   @relation("creater", fields: [createrId], references: [id])
+  createrId String
+
+  likes    User[]        @relation("likes")
+  comments PostComment[]
+}
+
+model PostComment {
+  id            String        @id @default(cuid())
+  content       String
+  user          User          @relation(fields: [userId], references: [id])
+  userId        String
+  Post          Post?         @relation(fields: [postId], references: [id])
+  postId        String?
+  comments      PostComment[] @relation("ReplyComments")
+  PostComment   PostComment?  @relation("ReplyComments", fields: [postCommentId], references: [id])
+  postCommentId String?
 }
 
 model Notification {
@@ -193,7 +221,7 @@ model Application {
   userId String?
 }
 
-model Comment {
+model JobComment {
   id       String  @id @default(cuid())
   content  String
   writer   User    @relation(fields: [writerId], references: [id], onDelete: Cascade)
