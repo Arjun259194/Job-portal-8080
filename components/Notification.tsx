@@ -24,11 +24,13 @@ export default function Notification(props: Props) {
           <Bell />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="m-3 p-2">
+      <DropdownMenuContent className="m-3 p-2 w-96">
         {props.notifications.map((noti, idx) => {
           return (
-            <Link className="" key={idx} href={noti.link ?? ""}>
-              <div className="hover:bg-secondary p-1">
+            <Link className="" key={idx} href={noti.link ?? "#"}>
+              <div
+                className={`hover:bg-secondary rounded-sm mb-2 p-1 ${!noti.recevided ? "border-l-2 border-l-blue-500" : ""}`}
+              >
                 <span>{noti.title}</span>
                 <p className="text-sm text-gray-500">{noti.content}</p>
               </div>

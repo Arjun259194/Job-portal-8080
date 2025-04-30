@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import TrendingPostsSideCard from "@/components/TrendingPostsSideCard"
+import action from "@/actions/like"
 
 export default async function page() {
 	const session = await auth()
@@ -33,11 +34,9 @@ export default async function page() {
 		<>
 			<Header />
 			<main className="flex min-h-screen bg-background p-6 gap-6">
-				{/* Left Sidebar */}
 				<section className="flex flex-col w-1/4 gap-4">
 					<ProfileCard profile={profile} user={user} />
 
-					{/* Connections */}
 					<Card>
 						<CardContent className="space-y-1">
 							<h4 className="text-lg">Top jobs on platform</h4>
@@ -63,9 +62,7 @@ export default async function page() {
 					</Card>
 				</section>
 
-				{/* Middle Feed */}
 				<section className="flex flex-col w-2/4 gap-4">
-					{/* Start Post */}
 					<Card>
 						<CardContent className="p-4">
 							<div className="flex items-center gap-4 mb-4">
@@ -84,18 +81,9 @@ export default async function page() {
 						</CardContent>
 					</Card>
 
-					{/* Example Post */}
 					{posts.map((post, idx) => {
 						return (
-							<Post
-								session={session}
-								action={async () => {
-									"use server"
-									//TODO
-								}}
-								key={idx}
-								post={post}
-							/>
+							<Post session={session} action={action} key={idx} post={post} />
 						)
 					})}
 				</section>

@@ -11,9 +11,9 @@ export default async function TrendingPostsSideCard() {
 				<h3 className="font-semibold mb-2">Trending Now</h3>
 				<ul className="text-sm text-foreground space-y-1">
 					{posts.map((post, idx) => (
-						<li className="flex space-x-2" key={idx}>
+						<li className="grid grid-cols-10" key={idx}>
 							<TrendingUp />
-							<span>{post.title}</span>
+							<span className="col-span-9">{post.title}</span>
 						</li>
 					))}
 				</ul>

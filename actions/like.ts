@@ -1,12 +1,11 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import { console } from "inspector"
 import { revalidatePath } from "next/cache"
 
 export default async function action(postId: string, userId: string) {
   try {
-    const post = prisma.post.findFirst({
+    const post = await prisma.post.findFirst({
       where: { id: postId },
       select: {
         likes: {
